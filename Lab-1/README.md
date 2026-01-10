@@ -2,8 +2,6 @@
 
 Understand Docker, containerd, and how containers run. Explore Docker's core components and architecture, and inspect the Docker daemon and runtime environment.
 
-## Lab 1 – Docker Fundamentals: Understanding the Container Engine Stack
-
 ### Objectives
 By the end of this lab, you will be able to:
 - Explain the relationship between Docker, containerd, and runc
