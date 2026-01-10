@@ -45,6 +45,8 @@ Most developers use `docker run` without understanding what's happening under th
 
 ### Why This Separation Matters
 
+![alt text](archi-diagrams/Lab-1_evolution2.drawio.svg)
+
 **Docker's Evolution:**
 - **2013**: Docker was monolithic (did everything)
 - **2016**: Docker spun out containerd into a separate project
@@ -55,8 +57,6 @@ Most developers use `docker run` without understanding what's happening under th
 - **containerd** can be used by other tools (Kubernetes, podman, etc.)
 - **runc** can be swapped with other OCI-compliant runtimes (Kata, gVisor)
 - **Docker** focuses on developer experience while standardizing the core
-
-![alt text](archi-diagrams/Lab-1_evolution2.drawio.svg)
 
 ## Docker Client-Server Communication
 
