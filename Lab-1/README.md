@@ -4,7 +4,7 @@ Understand Docker, containerd, and how containers run. Explore Docker's core com
 
 ![alt text](archi-diagrams/Lab-1_high-level-diagram.drawio.svg)
 
-### Objectives
+## Objectives
 By the end of this lab, you will be able to:
 - Explain the relationship between Docker, containerd, and runc
 - Visualize Docker's client-server architecture and components
@@ -134,7 +134,7 @@ docker version
 
 **Expected Output:**
 
-![alt text](image-3.png)
+![alt text](./images/image-3.png)
 
 **Analysis of Each Component:**
 
@@ -192,8 +192,8 @@ docker info
 
 **Expected Output (Partial):**
 
-![alt text](image-1.png)
-![alt text](image-2.png)
+![alt text](./images/image-1.png)
+![alt text](./images/image-2.png)
 <!-- 
 ```yaml
 Client:
@@ -345,7 +345,7 @@ ls -l /var/run/docker.sock
 
 **Expected output:**
 
-![alt text](image.png)
+![alt text](./images/image.png)
 
 **What this tells us:**
 
@@ -376,7 +376,7 @@ sudo ss -lp | grep docker
 
 **Expected output:**
 
-![alt text](image-4.png)
+![alt text](./images/image-4.png)
 
 This command (`ss`) is like a "wiretap." It lists all the active listening ports and connections on your system. By filtering for "docker," you are seeing exactly how the Docker Daemon (`dockerd`) is listening for instructions.
 
@@ -406,7 +406,7 @@ Let's examine how the Docker daemon is configured.
 cat /lib/systemd/system/docker.service
 ```
 
-![alt text](image-6.png)
+![alt text](./images/image-6.png)
 
 **Key sections to note:**
 ```ini
@@ -452,7 +452,7 @@ You cannot see the process tree if the factory floor is empty. Run this command 
 docker run -d --name hierarchy-demo nginx
 ```
 
-![alt text](image-8.png)
+![alt text](./images/image-8.png)
 
 **2. View the Process Tree**
 We use the `ps` command with the `f` (forest) flag to visualize the parent-child relationships. Since modern Linux (Systemd) manages the components separately, we will look for `containerd` to see the actual containers.
@@ -474,7 +474,7 @@ sshd      8140 ...      \_ nginx: worker process
 sshd      8141 ...      \_ nginx: worker process
 ```
 
-![alt text](image-7.png)
+![alt text](./images/image-7.png)
 
 **What the output shows:**
 - `containerd` (PID 1101) and `dockerd` (PID 1193) are both direct children of systemd (run as separate services)
@@ -531,7 +531,7 @@ ps aux | grep nginx
 
 **Output:**
 
-![alt text](image-9.png)
+![alt text](./images/image-9.png)
 
 ```bash
 # Check the container's namespaces (isolation)
@@ -540,7 +540,7 @@ sudo ls -l /proc/8081/ns/
 
 **Output:**
 
-![alt text](image-10.png)
+![alt text](./images/image-10.png)
 
 **What these namespaces mean:**
 - **mnt**: Mount points (filesystem isolation)
@@ -604,6 +604,6 @@ EOF
 dot -Tpng docker-architecture.dot -o docker-architecture.png
 ``` -->
 
-<!-- ![alt text](image-5.png) -->
+<!-- ![alt text](./images/image-5.png) -->
 <!-- 
 **This visualization reinforces your understanding of the component relationships.** -->
