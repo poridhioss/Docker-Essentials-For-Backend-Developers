@@ -1,74 +1,49 @@
-# Module 50: Build a JWT-Based Authentication API
-
-This structure follows a logical development lifecycle: **Database Design $\rightarrow$ Registration (Security) $\rightarrow$ Login (Token Generation) $\rightarrow$ Verification (Middleware) $\rightarrow$ Maintenance (Refresh Tokens).**
-
-### **Lab 1: Project Setup & Database Architecture**
-**Context:** Before handling authentication, students need a working application skeleton and a place to store user data. This lab focuses on the "Design a relational SQL schema" objective.
-
-*   **Goals:**
-    *   Initialize a FastAPI project environment.
-    *   Design the Relational SQL Model for the `User` table (including fields for ID, email, hashed password, and is_active status).
-    *   Set up the database connection (PostgreSQL) and migration tool (like Alembic).
-*   **Deliverables:**
-    *   A Python file defining the SQLAlchemy (or SQLModel) User class.
-    *   A successfully generated database file (or table) matching the schema.
-    *   A basic `GET /health` endpoint to verify the API is running.
+This module groups the work into three distinct labs: **The Foundation (User Management)**, **The Core (Authentication Logic)**, and **The Lifecycle (Session Management)**.
 
 ---
 
-### **Lab 2: Secure User Registration**
-**Context:** Now that the database exists, students need to populate it. This lab covers "Implement secure password hashing with bcrypt."
+### **Lab 1: User Management & Security Foundation**
+**Context:** In this lab, students set up the project infrastructure and handle the "static" side of authentication: storing users securely. This combines database design with the registration flow.
 
 *   **Goals:**
-    *   Create Pydantic schemas for User Registration (handling input validation).
-    *   Implement the `bcrypt` hashing algorithm to convert raw passwords into hashes.
-    *   Build the `POST /register` endpoint to save the user to the database.
+    *   Initialize the FastAPI environment and configure the database connection (SQLAlchemy/SQLModel).
+    *   **Design the SQL Schema:** Create the User table model (ID, Email, `is_active`, `hashed_password`).
+    *   **Security Implementation:** Implement `bcrypt` to handle password hashing (never store plain text!).
+    *   **Registration:** Build the `POST /register` endpoint to validate input and save the new user to the database.
 *   **Deliverables:**
-    *   A helper function `hash_password(password: str)`.
-    *   A working `/register` endpoint.
-    *   **Verification:** A database check showing that the password column contains a hash string (e.g., `$2b$12$...`) rather than "plain_text_password".
+    *   A Python file defining the User DB model.
+    *   A utility function `get_password_hash(password)`.
+    *   A functional `POST /register` endpoint.
+    *   **Validation:** A database check confirming that new users are saved with hashed passwords (e.g., `$2b$12$...`).
 
 ---
 
-### **Lab 3: Issuing Tokens (The Login Flow)**
-**Context:** This lab bridges the gap between the database and the client. It covers "Learn JWT structure" and creating the token.
+### **Lab 2: The Authentication Core (Login & Protection)**
+**Context:** This lab covers the "dynamic" side of authentication. Students will build the mechanism to issue tokens (Login) and the middleware to verify them (Protection), covering the bulk of the JWT theory.
 
 *   **Goals:**
-    *   Implement a password verification function (comparing input against the stored hash).
-    *   Construct the JWT payload (Subject, Expiration, Claims).
-    *   Sign the JWT using a secret key and an algorithm (HS256).
-    *   Build the `POST /login` (or `/token`) endpoint.
+    *   **Credential Verification:** Create a function to verify incoming passwords against the stored hashes.
+    *   **JWT Creation:** Implement the logic to encode the JWT Header, Payload (Subject), and Signature using `HS256`.
+    *   **Login Endpoint:** Build `POST /login` that returns an access token.
+    *   **Middleware/Dependency:** Understand the FastAPI request lifecycle by building the `get_current_user` dependency. This must decode the token, validate the signature, and fetch the user.
+    *   **Protected Routes:** specific endpoints (e.g., `GET /users/me`) using the new dependency.
 *   **Deliverables:**
-    *   A helper function `verify_password()`.
-    *   A helper function `create_access_token()`.
-    *   A working `/login` endpoint that accepts credentials and returns a JSON response: `{"access_token": "ey...", "token_type": "bearer"}`.
-    *   **Task:** Students must decode their generated token (using a tool like jwt.io) to inspect the Header, Payload, and Signature structure.
+    *   A utility function `verify_password(plain, hashed)`.
+    *   A utility function `create_access_token(data)`.
+    *   A working `POST /login` route returning a JWT.
+    *   A protected `GET /users/me` route that returns user profile data only when a valid token is provided in the header.
 
 ---
 
-### **Lab 4: Protecting Routes & The Request Lifecycle**
-**Context:** This is the core of the module. It covers "Understand FastAPI request lifecycle" and "Develop authentication middleware."
+### **Lab 3: Lifecycle Management (Expiration & Refresh)**
+**Context:** The final lab turns a basic script into a production-ready API. It focuses on the specific objective of "Handling token expiration and implementing refresh token strategies."
 
 *   **Goals:**
-    *   Create a dependency function (Middleware) that intercepts requests.
-    *   Implement logic to decode the JWT and validate the signature.
-    *   Retrieve the user from the database based on the token payload (request injection).
-    *   Create a protected route (e.g., `GET /users/me`) that requires a valid token.
+    *   **Expiration Logic:** Modify the token generation to enforce strict expiration times (e.g., 15 mins for Access, 7 days for Refresh).
+    *   **Dual-Token Architecture:** Refactor the login endpoint to issue *two* tokens (Access & Refresh).
+    *   **Refresh Endpoint:** Create a `POST /refresh` endpoint. This endpoint validates a long-lived Refresh Token and issues a new short-lived Access Token without requiring the user's password.
+    *   **Error Handling:** Ensure the API throws specific `401 Unauthorized` errors when tokens are expired.
 *   **Deliverables:**
-    *   A `get_current_user` dependency.
-    *   A protected endpoint `/me` that returns the current user's profile data.
-    *   **Test:** Attempting to access `/me` without a token should return a `401 Unauthorized` error; accessing it with a token returns `200 OK`.
-
----
-
-### **Lab 5: Token Expiration & Refresh Strategies**
-**Context:** Making the system production-ready. This covers "Handle token expiration and implement refresh token strategies."
-
-*   **Goals:**
-    *   Modify the token creation logic to set short expiration times for Access Tokens (e.g., 15 minutes) and long expiration for Refresh Tokens (e.g., 7 days).
-    *   Update the database schema (or store logic) to handle refresh tokens if utilizing a whitelist/blacklist approach.
-    *   Build a `POST /refresh` endpoint.
-*   **Deliverables:**
-    *   Updated login response containing both `access_token` and `refresh_token`.
-    *   A working `/refresh` endpoint that accepts a valid refresh token and returns a *new* access token.
-    *   **Scenario Test:** Student must demonstrate that when an access token expires, the client can use the refresh endpoint to regain access without re-entering a password.
+    *   Refactored `POST /login` response schema (includes `refresh_token`).
+    *   A functional `POST /refresh` endpoint.
+    *   **Scenario Test:** A demonstration where the student manually sets a token to expire in 1 second, waits for it to expire, attempts to access a protected route (fails), and then successfully uses the refresh endpoint to regain access.
